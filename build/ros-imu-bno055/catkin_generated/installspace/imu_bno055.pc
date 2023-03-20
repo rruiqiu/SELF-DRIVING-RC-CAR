@@ -1,0 +1,8 @@
+prefix=/home/rsg/catkin_ws/install
+
+Name: imu_bno055
+Description: Description of imu_bno055
+Version: 2.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 

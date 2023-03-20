@@ -1,0 +1,8 @@
+prefix=/home/rsg/catkin_ws/devel
+
+Name: imu_tf_pkg
+Description: Description of imu_tf_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

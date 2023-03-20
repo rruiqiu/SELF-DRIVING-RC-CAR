@@ -1,0 +1,8 @@
+prefix=/home/rsg/catkin_ws/devel
+
+Name: imu_bno055
+Description: Description of imu_bno055
+Version: 2.0.0
+Cflags: -I/home/rsg/catkin_ws/src/ros-imu-bno055/include
+Libs: -L${prefix}/lib 
+Requires: 

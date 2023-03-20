@@ -1,0 +1,9 @@
+<launch>
+ <include file="/home/rsg/catkin_ws/src/joystick_drivers/joy/launch/f710joy.launch" /> 
+ <include file="/home/rsg/catkin_ws/src/vesc/vesc_driver/launch/vesc_driver_node.launch" /> 
+  <node name = "JoyControl" pkg = "test" type = "JoyControl.py" >
+   <param name = "Multiplier" value = "0.12" />
+   <param name = "ControlMethod" value = "0" />
+  </node>
+  <node name = "servoControl" pkg = "test" type = "servoControl.py" />
+</launch>

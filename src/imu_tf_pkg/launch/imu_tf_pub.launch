@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="imu_tf_pkg" type="imu_tf_pub" name="imu_tf_pub" output="screen">
+    <param name="base_stabilized_frame" type="string" value="map" />
+    <param name="imu_topic" type="string" value="imu/data" />
+    <param name="base_frame" type="string" value="imu" />
+  </node>
+</launch>
