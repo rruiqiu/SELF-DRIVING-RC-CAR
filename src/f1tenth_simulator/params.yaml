@@ -1,6 +1,6 @@
 # The distance between the front and
 # rear axle of the racecar
-wheelbase: 0.287 # meters 
+wheelbase: 0.287 # meters
 # width of racecar
 width: 0.342 # meters
 
@@ -8,10 +8,10 @@ width: 0.342 # meters
 buffer_length: 5
 
 # Limits on the speed and steering angle
-max_speed: 1.5  #  meters/second 7.
+max_speed: 1.5 #  meters/second
 max_steering_angle: 0.4189 # radians
 max_accel: 2.5 #7.51 # meters/second^2
-max_decel: 2.5 #8.26 # meters/second^2
+max_decel: 1.5 #8.26 # meters/second^2
 max_steering_vel: 3.2 # radians/second
 friction_coeff: 0.523 # - (complete estimate)
 height_cg: 0.074 # m (roughly measured to be 3.25 in)
@@ -28,12 +28,11 @@ update_pose_rate: 0.001
 # Lidar simulation parameters
 scan_beams: 720
 scan_field_of_view: 6.2831853 #4.71 # radians
-
 scan_range: 12.0
 
 # The distance from the center of the
 # rear axis (base_link) to the lidar
-scan_distance_to_base_link: 0.01286 #0.275 # meters
+scan_distance_to_base_link: 0.01286 # meters
 
 # The standard deviation of the noise applied
 # to the lidar simulation
@@ -64,75 +63,103 @@ joy: true
 # Joystick indices
 joy_speed_axis: 1
 joy_angle_axis: 3
-joy_max_speed: 1. # meters/second
+joy_max_speed: 1 #2. # meters/second
 # Joystick indices for toggling mux
-joy_button_idx: 4  # LB button
-key_button_idx: 6 # not sure 
-brake_button_idx: 0 # X button
-random_walk_button_idx: 1 # A button
-collision_assistance_button_idx: 2 # B button
+joy_button_idx: 4 # LB button
+key_button_idx: 6 # not sure
+brake_button_idx: 0 # A button
+random_walk_button_idx: 1 # ? button
 nav_button_idx: 5 # RB button
+collision_assistance_button_idx: 2 # X button
 # **Add button for new planning method here**
 new_button_idx: -1
 
 # Keyboard characters for toggling mux
-joy_key_char: "j"
-keyboard_key_char: "k"
-brake_key_char: "b"
-random_walk_key_char: "r"
-nav_key_char: "n"
+joy_key_char: 'j'
+keyboard_key_char: 'k'
+brake_key_char: 'b'
+random_walk_key_char: 'r'
+nav_key_char: 'n'
 # **Add button for new planning method here**
-new_key_char: "z"
+new_key_char: 'z'
 
 # Keyboard driving params
-keyboard_speed: 1.8  # meters/second
-keyboard_steer_ang: .3  # radians
+keyboard_speed: 1.8 # meters/second
+keyboard_steer_ang: .3 # radians
 
 # obstacle parameters
 obstacle_size: 2
 
 # The names of topics to listen and publish to
-joy_topic: "/joy"
-drive_topic: "/drive"
-map_topic: "/map"
-distance_transform_topic: "/dt"
-scan_topic: "/scan"
-pose_topic: "/pose"
-ground_truth_pose_topic: "/gt_pose"
-odom_topic: "/odom"
-imu_topic: "/imu/data"
-pose_rviz_topic: "/initialpose"
-keyboard_topic: "/key"
-brake_bool_topic: "/brake_bool"
-mux_topic: "/mux"
+joy_topic: '/joy'
+drive_topic: '/drive'
+map_topic: '/map'
+distance_transform_topic: '/dt'
+scan_topic: '/scan'
+pose_topic: '/pose'
+ground_truth_pose_topic: '/gt_pose'
+odom_topic: '/odom'
+imu_topic: '/imu/data'
+pose_rviz_topic: '/initialpose'
+keyboard_topic: '/key'
+brake_bool_topic: '/brake_bool'
+mux_topic: '/mux'
 
 # Topic names of various drive channels
-rand_drive_topic: "/rand_drive"
-brake_drive_topic: "/brake"
-nav_drive_topic: "/nav"
+rand_drive_topic: '/rand_drive'
+brake_drive_topic: '/brake'
+nav_drive_topic: '/nav'
 # **Add name for new planning method here**
-new_drive_topic: "/new_drive"
-collision_assistance_drive_topic: "/collision_assistance"
+new_drive_topic: '/new_drive'
+collision_assistance_drive_topic: '/collision_assistance'
 
-# name of file to write collision log to 
-collision_file: "collision_file"
+# name of file to write collision log to
+collision_file: 'collision_file'
 
 # The names of the transformation frames published to
-map_frame: "map"
-base_frame: "base_link"
-scan_frame: "laser"
-odom_frame: "odom"
-imu_frame: "imu"
-
+map_frame: 'map'
+base_frame: 'base_link'
+scan_frame: 'laser'
+odom_frame: 'odom_frame'
+imu_frame: 'imu_frame'
 
 broadcast_transform: true
 publish_ground_truth_pose: true
 
-# Experiment
-speed_to_erpm_gain:  3182.12
+# Ackermann to VESC parameters
+
+# (change these values based on your own calibration)
+
+speed_to_erpm_gain: 3182.12
 speed_to_erpm_offset: 0.0
 steering_angle_to_servo_gain: -0.96976
 steering_angle_to_servo_offset: 0.495
 
 driver_smoother_rate: 75.0 # messages/sec
 
+# Collision Assistance Algorithm Parameters
+
+distance_to_obstacle_th: 1.0
+force_gain: 8.0
+velocity_correction_gain: 0.8
+steering_correction_gain: 0.6
+
+emergency_brake_active: true
+
+# Wall Following Algorithm Parameters
+
+CenterOffset: 0
+DistanceLeft: 1.0
+DistanceRight: 1.0
+TrackWall: 0
+angle_bl: rad(270*pi/180)
+angle_al: rad(220*pi/180)
+angle_br: rad(90*pi/180)
+angle_ar: rad(140*pi/180)
+k_d: 4
+k_p: 6
+velocity_high: 1.5
+velocity_medium: 1.0
+velocity_low: 0.5
+angle_threshold_low: 10
+angle_threshold_high: 20

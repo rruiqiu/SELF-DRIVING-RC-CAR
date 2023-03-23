@@ -43,7 +43,7 @@ private:
     std::vector<bool> prev_mux;
 
     // Params for joystick calculations
-    int joy_speed_axis, joy_angle_axis;
+    int joy_speed_axis, joy_angle_axis, joy_expm;
     double max_speed, max_steering_angle;
     // For keyboard driving
     double prev_key_velocity=0.0;
@@ -62,6 +62,7 @@ public:
         n.getParam("mux_topic", mux_topic);
         n.getParam("joy_topic", joy_topic);
         n.getParam("keyboard_topic", key_topic);
+
 
         // Make a publisher for drive messages
         drive_pub = n.advertise<ackermann_msgs::AckermannDriveStamped>(drive_topic, 10);
@@ -129,7 +130,13 @@ public:
         // n.getParam("new_drive_topic", new_drive_topic);
         // n.getParam("new_mux_idx", new_mux_idx);
         // add_channel(new_drive_topic, drive_topic, new_mux_idx);
+        int collision_assistance_mux_idx;
+        std::string collision_assistance_drive_topic;
+        n.getParam("collision_assistance_drive_topic", collision_assistance_drive_topic);
+        n.getParam("collision_assistance_mux_idx", collision_assistance_mux_idx);
+        add_channel(collision_assistance_drive_topic, drive_topic, collision_assistance_mux_idx);
     }
+
 
     void add_channel(std::string channel_name, std::string drive_topic, int mux_idx_) {
         Channel* new_channel = new Channel(channel_name, drive_topic, mux_idx_, this);
@@ -247,7 +254,7 @@ Channel::Channel() {
 Channel::Channel(std::string channel_name, std::string drive_topic, int mux_idx_, Mux* mux) 
 : mux_idx(mux_idx_), mp_mux(mux) {
     drive_pub = mux->n.advertise<ackermann_msgs::AckermannDriveStamped>(drive_topic, 10);
-    channel_sub = mux->n.subscribe(channel_name, 1, &Channel::drive_callback, this);
+    channel_sub = mux->n.subscribe(channel_name, 10, &Channel::drive_callback, this);
 }
 
 void Channel::drive_callback(const ackermann_msgs::AckermannDriveStamped & msg) {

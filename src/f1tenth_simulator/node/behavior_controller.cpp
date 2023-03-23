@@ -40,6 +40,8 @@ private:
     int brake_mux_idx;
     // ***Add mux index for new planner here***
     // int new_mux_idx;
+    int collision_assistance_mux_idx;
+   
 
     // Mux controller array
     std::vector<bool> mux_controller;
@@ -51,6 +53,7 @@ private:
     int random_walk_button_idx;
     int brake_button_idx;
     int nav_button_idx;
+    int collision_assistance_button_idx;
     // ***Add button index for new planner here***
     // int new_button_idx;
 
@@ -119,6 +122,8 @@ public:
         n.getParam("nav_mux_idx", nav_mux_idx);
         // ***Add mux index for new planner here***
         // n.getParam("new_mux_idx", new_mux_idx);
+        n.getParam("collision_assistance_mux_idx", collision_assistance_mux_idx);
+
 
         // Get button indices
         n.getParam("joy_button_idx", joy_button_idx);
@@ -127,6 +132,9 @@ public:
         n.getParam("brake_button_idx", brake_button_idx);
         n.getParam("nav_button_idx", nav_button_idx);
         // ***Add button index for new planner here***
+        n.getParam("collision_assistance_button_idx", collision_assistance_button_idx);
+        
+        n.getParam("emergency_brake_active", safety_on);
         // n.getParam("new_button_idx", new_button_idx);
 
         // Get key indices
@@ -145,8 +153,6 @@ public:
             mux_controller[i] = false;
         }
 
-        // Start with ebrake off
-        safety_on = false;
 
         // Initialize state
         state = {.x=0.0, .y=0.0, .theta=0.0, .velocity=0.0, .steer_angle=0.0, .angular_velocity=0.0, .slip_angle=0.0, .st_dyn=false};
@@ -216,7 +222,7 @@ public:
                 // if it's small, there's a collision
                 if ((ttc < ttc_threshold) && (ttc >= 0.0)) { 
                     // Send a blank mux and write to file
-                    collision_helper();
+                    // collision_helper();
 
                     in_collision = true;
 
@@ -262,13 +268,17 @@ public:
     }
 
     void toggle_brake_mux() {
-        ROS_INFO_STREAM("Emergency brake engaged");
+
+        if (mux_controller[brake_mux_idx] == false)
+         {
+                ROS_INFO_STREAM("Emergency brake engaged");
         // turn everything off
-        for (int i = 0; i < mux_size; i++) {
+         for (int i = 0; i < mux_size; i++) {
             mux_controller[i] = false;
         }
         // turn on desired controller
         mux_controller[brake_mux_idx] = true;
+        }
 
         publish_mux();
     }
@@ -317,6 +327,9 @@ public:
         //  // new planner
         //  toggle_mux(new_mux_idx, "New Planner");
         // }
+        else if (msg.buttons[collision_assistance_button_idx]){
+            toggle_mux(collision_assistance_mux_idx,"Collision Assistance");
+        }
 
     }
 
@@ -381,3 +394,4 @@ int main(int argc, char ** argv) {
     ros::spin();
     return 0;
 }
+
