@@ -88,7 +88,7 @@ class CollisionAssistance:
                 if j == 0:
                     indx[0] = i
                     j = 1
-                indx[1] = i
+                indx[1] = i +1 
             else:
                 j = 0
                 if indx[1] - indx[0] > 0:
@@ -103,8 +103,7 @@ class CollisionAssistance:
         for i in range(nm_obs):
             # find index of minimum range in obstacle range
             #arg_ls_obs[i] = np.argmin(..., 0])
-            arr = ls_ranges[self.obs_indx[i, 0]:self.obs_indx[i, 1] + 1]
-            arg_ls_obs[i] = np.argmin(arr, 0)
+            arg_ls_obs[i] = np.argmin(ls_ranges[self.obs_indx[i, 0]:self.obs_indx[i, 1],0])
             #add index of minimum range to first index of obstacle range
             arg_ls_obs[i] = self.obs_indx[i, 0] + arg_ls_obs[i]
 
@@ -120,8 +119,8 @@ class CollisionAssistance:
             d = ls_ranges[arg_ls_obs[i], 0]
             theta = ls_ranges[arg_ls_obs[i], 1]
             #self.f_gain is just the force gain in the params file
-            f_rep_x = f_rep_x + self.f_gain * self.etha_vel
-            f_rep_y = f_rep_y + self.f_gain * self.etha_vel
+            f_rep_x = f_rep_x + self.f_gain * (1-self.d_obs/d)*math.cos(theta)
+            f_rep_y = f_rep_y + self.f_gain * (1-self.d_obs/d)*math.sin(theta)
 
         return f_rep_x, f_rep_y
 
@@ -146,7 +145,7 @@ class CollisionAssistance:
         self.vel_x = self.vel + f_tot_x
 
         #i think the vel_x is for the velocity and d is for idk
-        vel_d = ...
+        vel_d = self.etha_vel * self.vel_joy + (1-self.etha_vel)*self.vel_x 
 
         if self.vel_joy >= 0 and vel_d < 0:
             vel_d = 0
