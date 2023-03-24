@@ -94,7 +94,7 @@ class CollisionAssistance:
                 if j==0:
                     indx[0]=i
                     j=1
-                indx[1]=...
+                indx[1] = i+1
             else:
                 j=0
                 if indx[1]-indx[0]>0:
@@ -105,8 +105,8 @@ class CollisionAssistance:
         arg_ls_obs=np.zeros(nm_obs,dtype=int)
         
         for i in range(nm_obs):
-            arg_ls_obs[i]=np.argmin(...,0])
-            arg_ls_obs[i]=self.obs_indx[i,0]+...
+            arg_ls_obs[i] = np.argmin(ls_ranges[self.obs_indx[i, 0]:self.obs_indx[i, 1],0])
+            arg_ls_obs[i]=self.obs_indx[i,0]+ arg_ls_obs[i]
         
         return nm_obs, arg_ls_obs
 
@@ -120,8 +120,8 @@ class CollisionAssistance:
             d=ls_ranges[arg_ls_obs[i],0]
             theta=ls_ranges[arg_ls_obs[i],1]
 
-            f_rep_x=f_rep_x+self.f_gain*...
-            f_rep_y=f_rep_y+self.f_gain*...
+            f_rep_x=f_rep_x+self.f_gain*(1-self.d_obs/d)*math.cos(theta)
+            f_rep_y=f_rep_y+self.f_gain*(1-self.d_obs/d)*math.sin(theta)
 
         return f_rep_x, f_rep_y
     
@@ -146,12 +146,12 @@ class CollisionAssistance:
         # Calculate desired velocity and steering angle
         self.vel_x=self.vel+f_tot_x
         
-        vel_d= ...
+        vel_d = self.etha_vel * self.vel_joy + (1-self.etha_vel)*self.vel_x 
 
         if self.vel_joy >=0 and vel_d < 0:
             vel_d = 0
 
-        u0=self.etha_delta*math.tan(self.steer_joy)+ ...
+        u0 = self.etha_delta * math.tan(self.steer_joy) + (1-self.etha_delta)* (self.wheelbase/max(pow(self.vel,2),pow(10,-4)))*f_tot_y
         delta_d=math.atan((u0-math.tan(self.steer_joy))/(1+u0*math.tan(self.steer_joy)))+self.steer_joy
        
         if delta_d >=self.max_steering_angle:
