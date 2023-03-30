@@ -8,10 +8,10 @@ width: 0.342 # meters
 buffer_length: 5
 
 # Limits on the speed and steering angle
-max_speed: 1.5 #  meters/second
+max_speed: 2.0 #  meters/second
 max_steering_angle: 0.4189 # radians
 max_accel: 2.5 #7.51 # meters/second^2
-max_decel: 1.5 #8.26 # meters/second^2
+max_decel: 2.5 #8.26 # meters/second^2
 max_steering_vel: 3.2 # radians/second
 friction_coeff: 0.523 # - (complete estimate)
 height_cg: 0.074 # m (roughly measured to be 3.25 in)
@@ -28,7 +28,7 @@ update_pose_rate: 0.001
 # Lidar simulation parameters
 scan_beams: 720
 scan_field_of_view: 6.2831853 #4.71 # radians
-scan_range: 12.0
+scan_range: 10.0
 
 # The distance from the center of the
 # rear axis (base_link) to the lidar
@@ -119,16 +119,14 @@ collision_file: 'collision_file'
 # The names of the transformation frames published to
 map_frame: 'map'
 base_frame: 'base_link'
+base_frame_imu: 'base_link_imu'
 scan_frame: 'laser'
-odom_frame: 'odom_frame'
-imu_frame: 'imu_frame'
+odom_frame: 'odom'
 
 broadcast_transform: true
 publish_ground_truth_pose: true
 
 # Ackermann to VESC parameters
-
-# (change these values based on your own calibration)
 
 speed_to_erpm_gain: 3182.12
 speed_to_erpm_offset: 0.0
@@ -141,25 +139,29 @@ driver_smoother_rate: 75.0 # messages/sec
 
 distance_to_obstacle_th: 1.0
 force_gain: 8.0
-velocity_correction_gain: 0.8
+velocity_correction_gain: 0.6
 steering_correction_gain: 0.6
-
 emergency_brake_active: true
 
 # Wall Following Algorithm Parameters
 
-CenterOffset: 0.0
-DistanceLeft: 1.0
-DistanceRight: 2.0
-TrackWall: 1
+CenterOffset: 0
 angle_bl: rad(270*pi/180)
-angle_al: rad(220*pi/180)
+angle_al: rad(181*pi/180)
 angle_br: rad(90*pi/180)
-angle_ar: rad(140*pi/180)
-k_d: 4
-k_p: 6
-velocity_high: 1.5
+angle_ar: rad(179*pi/180)
+n_pts_l: 30
+n_pts_r: 30
+k_d: 4 #4
+k_p: 6 #6
+velocity_high: 1.4
 velocity_medium: 1.0
-velocity_low: 0.5
+velocity_low: 0.8
 angle_threshold_low: 10
-angle_threshold_high: 20
+angle_threshold_high: 30
+
+# Gap Following Algorithm Parameters
+
+safe_distance: 2
+right_beam_angle: rad(2*pi*4.0/16)
+left_beam_angle: rad(2*pi*12.0/16)
