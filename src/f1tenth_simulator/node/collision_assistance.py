@@ -67,47 +67,63 @@ class CollisionAssistance:
 
      
     # Preprocess the LiDAR scan array.  
-    # explain what this function does bruh.
+    # explain what this function does.
+    #get the input from the lidar ranges
+    # this function will filter out the ranges who exceeds the maximum lidar range and will put the remaining data point into a more compact format.
     def preprocess_lidar(self, ranges):
-        
-        
+    #get the input of lidar ranges, separate each angle with lidar beams
         data=[]
         j=0
-        for i in range(self.ls_len_mod):
+        for i in range(self.ls_len_mod): ## number of laser returns falling inside maximum valid range
+
+            #ls_ang_inc for each angle beam increment
+            #angle_cen front center beam angle
+            #data.append[distance to obstacle, angle] with the corresponding beam
             if ranges[self.ls_str+i]<=self.max_lidar_range:
                data.append ([ranges[self.ls_str+i],i*self.ls_ang_inc-self.angle_cen])
                j=j+1
+        # number of laser returns falling inside maximum valid range
         self.ls_len_mod2=j
         return np.array(data)
-        
+    
 
     # Find unsafe obstacles and return number of unsafe obstacles
     #  and the closest point of each unsafe obstacle to the vehicle   
+
+    #get the input from preprocess_lidar
     def obst_idnt(self,ls_ranges):
  
         indx=np.zeros((2),dtype=int)
         j=0
         nm_obs=0
 
-        for i in range(self.ls_len_mod2):
+        for i in range(self.ls_len_mod2): #loop within the getting valid laser beam returns
+            #ls_range[i,0] = the different angles beam distance, if the distance smaller than threshold, and i is not the last point of the valid data
             if ls_ranges[i,0]<=self.d_obs and i<self.ls_len_mod2-1:
                 if j==0:
                     indx[0]=i
                     j=1
-                indx[1] = i+1
+                indx[1] = i+1 #because for one obstacle it can have mutiple beams which will exceed the threshold, so we want to detect the first and last beam points, and store them in the indx.
             else:
                 j=0
-                if indx[1]-indx[0]>0:
+                if indx[1]-indx[0]>0: 
+                    #if there is valid data, assign the obs_index as the index where corresponds the [start pos,end pos] of the obstacle
                     self.obs_indx[nm_obs,:]=indx
                     nm_obs=nm_obs+1
                     indx[1]=0;indx[0]=0
-
+        #create a new arr with nm_obs length
         arg_ls_obs=np.zeros(nm_obs,dtype=int)
         
         for i in range(nm_obs):
+            #argmin- find the index of the minimal value in an array, loop the index in the full ls_ranges so it will get all the data points
+            #The function np.argmin() returns the index of the minimum value in an array. 
             arg_ls_obs[i] = np.argmin(ls_ranges[self.obs_indx[i, 0]:self.obs_indx[i, 1],0])
+            #imagine, within the range of the start and end index, if that one is smaller
+            #it is used to find the fucking index, so, we need to add the orgiinal index
             arg_ls_obs[i]=self.obs_indx[i,0]+ arg_ls_obs[i]
-        
+            #why add? 
+        # The resulting index is then adjusted to be the index within the full ls_ranges array, rather than the index within the slice of the ls_ranges array. 
+        #the arg_ls_obs will store the index of the nearest obstacle index within the ls_ranges
         return nm_obs, arg_ls_obs
 
 

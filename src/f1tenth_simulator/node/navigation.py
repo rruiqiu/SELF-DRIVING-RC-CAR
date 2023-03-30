@@ -78,10 +78,14 @@ class WallFollow:
         betal=math.atan((dis_lsr_al*math.cos(self.thetal)-dis_lsr_bl)/(dis_lsr_al*math.sin(self.thetal)))
 
         alphal = -1*betal - self.angle_bl + math.pi*(3/2)
-        alphar = betar - self.angle_br+math.pi/2
+        # 3pi/2 = 270 deg.
+        
 
- 
+        alphar = betar - self.angle_br + math.pi/2
+
+        # distance to the left walls
         dl=dis_lsr_bl*math.cos(betal)
+        # distance to the right walls
         dr=dis_lsr_br*math.cos(betar)
 
 
@@ -113,20 +117,30 @@ class WallFollow:
 
             delta_d = 0
             
-
+        # if the steering angle exceeds the threshold value.
         if delta_d >=self.max_steering_angle:
             delta_d=self.max_steering_angle
         elif delta_d<=-self.max_steering_angle:
             delta_d =-self.max_steering_angle
         
+        #radians to degree conversion
         angle_deg=abs(delta_d)*180/math.pi
-        
+        #angle_threshold_low: 10, defined in params.yaml file
+        #angle_threshold_high: 20
+        # velocity_high: 1.5
+        # velocity_medium: 1.0
+        # velocity_low: 0.5
         if angle_deg>=0 and angle_deg<=self.angle_threshold_low:
             velocity=self.velocity_high
         elif angle_deg > self.angle_threshold_low and angle_deg <= self.angle_threshold_high:
             velocity=self.velocity_medium
         else:
             velocity=self.velocity_low
+
+        #if the stering angle is between zero and threshold_low, the velocity will be high
+        #if between low and high, the v will be medium
+        #if exceeds the high angle, the v will be low
+        #to make sure the aev will not speed too fast when it's not driving horizontally.
 
         # Publish to driver topic
         drive_msg = AckermannDriveStamped()
