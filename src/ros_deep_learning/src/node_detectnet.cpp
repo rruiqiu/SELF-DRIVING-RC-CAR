@@ -108,7 +108,7 @@ void img_callback( const sensor_msgs::ImageConstPtr input )
 	// if objects were detected, send out message
 	if( numDetections > 0 )
 	{
-		ROS_INFO("detected %i objects in %ux%u image", numDetections, input->width, input->height);
+		//ROS_INFO("detected %i objects in %ux%u image", numDetections, input->width, input->height);
 		
 		// create a detection for each bounding box
 		vision_msgs::Detection2DArray msg;
@@ -117,8 +117,8 @@ void img_callback( const sensor_msgs::ImageConstPtr input )
 		{
 			detectNet::Detection* det = detections + n;
 
-			ROS_INFO("object %i class #%u (%s)  confidence=%f", n, det->ClassID, net->GetClassDesc(det->ClassID), det->Confidence);
-			ROS_INFO("object %i bounding box (%f, %f)  (%f, %f)  w=%f  h=%f", n, det->Left, det->Top, det->Right, det->Bottom, det->Width(), det->Height()); 
+			//ROS_INFO("object %i class #%u (%s)  confidence=%f", n, det->ClassID, net->GetClassDesc(det->ClassID), det->Confidence);
+			//ROS_INFO("object %i bounding box (%f, %f)  (%f, %f)  w=%f  h=%f", n, det->Left, det->Top, det->Right, det->Bottom, det->Width(), det->Height()); 
 			
 			// create a detection sub-message
 			vision_msgs::Detection2D detMsg;

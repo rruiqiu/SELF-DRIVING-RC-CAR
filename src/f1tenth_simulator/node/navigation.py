@@ -10,8 +10,7 @@ import rospy
 from sensor_msgs.msg import Image, LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 from nav_msgs.msg import Odometry
-
-
+from vision_msgs.msg import Detection2DArray
 
 
 class WallFollow:
@@ -21,6 +20,7 @@ class WallFollow:
         lidarscan_topic =rospy.get_param('~scan_topic')
         drive_topic = rospy.get_param('~nav_drive_topic')
         odom_topic=rospy.get_param('~odom_topic')
+        camera_topic=rospy.get_param('~camera_topic')
 
         self.t_prev=rospy.get_time()
         self.max_steering_angle=rospy.get_param('~max_steering_angle')
@@ -46,8 +46,9 @@ class WallFollow:
         #Subscriptions,Publishers
         rospy.Subscriber(lidarscan_topic, LaserScan, self.lidar_callback,queue_size=1)
         rospy.Subscriber(odom_topic, Odometry, self.odom_callback,queue_size=1)
+        #rospy.Subscriber(camera_topic,Detection2DArray, self.camera_callback,queue_size=1)
 
-        self.drive_pub =rospy.Publisher(drive_topic, AckermannDriveStamped, queue_size=1)
+        self.drive_pub =rospy.Publisher(drive_topic, AckermannDriveStamped,self.driveInfo_callback,queue_size=10)
         
         self.vel = 0
         #formulas in page 15
@@ -64,7 +65,9 @@ class WallFollow:
             data2=self.max_lidar_range
         return data2
 
-
+    def getclassID(self, data):
+        id = int(data.results[0].id)
+        return id
 
     def lidar_callback(self, data):      
 
@@ -142,13 +145,7 @@ class WallFollow:
         #if exceeds the high angle, the v will be low
         #to make sure the aev will not speed too fast when it's not driving horizontally.
 
-        # Publish to driver topic
-        drive_msg = AckermannDriveStamped()
-        drive_msg.header.stamp = rospy.Time.now()
-        drive_msg.header.frame_id = "base_link"
-        drive_msg.drive.steering_angle = delta_d
-        drive_msg.drive.speed = velocity
-        self.drive_pub.publish(drive_msg)
+        self.driveInfo_callback(delta_d, velocity)
 
 
 
@@ -156,11 +153,30 @@ class WallFollow:
         # update current speed
         self.vel = odom_msg.twist.twist.linear.x
 
+    def camera_callback(self, data):
+        classId=self.getclassID(data)
+        #find the id of a stop sign or a person
+        if classId == 0:
+            #self.vel = 0
+            delta_d = 0
+            velocity = 0
+            print("stop sign detected")
+            self.driveInfo_callback(delta_d, velocity)
+
+    def driveInfo_callback(self,angle,speed):
+        # Publish to driver topic
+        drive_msg = AckermannDriveStamped()
+        drive_msg.header.stamp = rospy.Time.now()
+        drive_msg.header.frame_id = "base_link"
+        drive_msg.drive.steering_angle = angle
+        drive_msg.drive.speed = speed
+        self.drive_pub.publish(drive_msg)
 
 def main(args):
     rospy.init_node("WallFollow_node", anonymous=True)
     wf = WallFollow()
     rospy.sleep(0.1)
+    #keep the node running until it stops
     rospy.spin()
 
 if __name__=='__main__':
