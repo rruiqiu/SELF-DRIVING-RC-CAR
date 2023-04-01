@@ -105,6 +105,8 @@ keyboard_topic: '/key'
 brake_bool_topic: '/brake_bool'
 mux_topic: '/mux'
 camera_topic: '/detectnet/detections'
+sensor_topic: '/sensor/sensor_data'
+output_topic: '/detection/output'
 
 # Topic names of various drive channels
 rand_drive_topic: '/rand_drive'

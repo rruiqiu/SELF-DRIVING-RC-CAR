@@ -170,6 +170,7 @@ void img_callback( const sensor_msgs::ImageConstPtr input )
 // node main loop
 int main(int argc, char **argv)
 {
+
 	/*
 	 * create node instance
 	 */
