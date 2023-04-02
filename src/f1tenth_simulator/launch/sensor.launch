@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+
+ <!-- Launch the sensor Node -->
+  <node pkg="f1tenth_simulator" name="sensor" type="sensor.py" output="screen">
+    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  </node>
+
+   <!-- Launch the listener Node -->
+  <node pkg="f1tenth_simulator" name="listen" type="listen.py" output="screen">
+    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  </node>
+
+</launch>

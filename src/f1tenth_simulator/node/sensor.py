@@ -1,23 +1,18 @@
 #!/usr/bin/env python
-
 import rospy
 from std_msgs.msg import String
 
-def publisher():
-    # Initialize the node
-    rospy.init_node('sensor')
-    
-    # Create a publisher for the new topic
-    pub = rospy.Publisher('/sensor_data', String, queue_size=10)
-    
-    # Loop and publish messages
-    rate = rospy.Rate(10) # 1 Hz
+def talker():
+    pub = rospy.Publisher('/sensor/sensor_data', String, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
+    rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
-        message = String()
-        message.data = 'Fast'
-        pub.publish(message)
+        speed_str = "Velocity: Fast %s" % rospy.get_time()
+        pub.publish(speed_str)
         rate.sleep()
-        rospy.spin()
 
 if __name__ == '__main__':
-    publisher()
+    try:
+        talker()
+    except rospy.ROSInterruptException:
+        pass

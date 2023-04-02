@@ -65,5 +65,5 @@
     <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
   </node>
 
-  </launch>
+</launch>
 
