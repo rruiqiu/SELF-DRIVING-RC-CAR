@@ -52,10 +52,10 @@ class objectDetection:
                 self.sensor_callback_paused = True
                 start_time = rospy.Time.now()
                 while (rospy.Time.now() - start_time).to_sec() < 5.0:  # publish for 5 seconds
-                    speed_str =  "Velocity: Slow %s" % rospy.get_time()
+                    speed_str =  "Velocity: Slow %s" 
                     rospy.loginfo(speed_str)
                     self.output_pub.publish(speed_str)
-                    rospy.Rate(10).sleep()  # publish at a rate of 10 Hz
+                    #rospy.Rate(10).sleep()  # publish at a rate of 10 Hz
                     self.sensor_callback_paused = True
                 self.classId_timer = None # reset the timer
                 self.unpause_sensor_callback() 
@@ -63,6 +63,7 @@ class objectDetection:
         elif (self.classId_timer is not None) and (rospy.Time.now() - self.classId_timer).to_sec() > self.duration_threshold:
             self.classId_timer = None # reset the timer when classId is not equal to 72
             self.unpause_sensor_callback() 
+        #the object is not detected
         else:
             self.unpause_sensor_callback() 
 

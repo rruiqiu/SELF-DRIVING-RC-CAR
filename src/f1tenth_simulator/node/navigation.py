@@ -22,6 +22,7 @@ class WallFollow:
         odom_topic=rospy.get_param('~odom_topic')
         camera_topic=rospy.get_param('~camera_topic')
 
+
         self.t_prev=rospy.get_time()
         self.max_steering_angle=rospy.get_param('~max_steering_angle')
         self.max_lidar_range=rospy.get_param('~scan_range')
@@ -46,15 +47,71 @@ class WallFollow:
         #Subscriptions,Publishers
         rospy.Subscriber(lidarscan_topic, LaserScan, self.lidar_callback,queue_size=1)
         rospy.Subscriber(odom_topic, Odometry, self.odom_callback,queue_size=1)
-        #rospy.Subscriber(camera_topic,Detection2DArray, self.camera_callback,queue_size=1)
+        rospy.Subscriber(camera_topic,Detection2DArray, self.camera_callback,queue_size=1)
 
-        self.drive_pub =rospy.Publisher(drive_topic, AckermannDriveStamped,self.driveInfo_callback,queue_size=10)
-        
+        self.drive_pub =rospy.Publisher(drive_topic, AckermannDriveStamped, queue_size=1)
+
+        self.classId_timer = None # initialize the timer to None
+        self.duration_threshold = 3 #detection interval of 3 seconds
+        self.duration_publish = 5 #interavl in which the messgae is published once it detects a stop sign
+ 
+
+        # Initialize a flag that will indicate whether the sensor callback is paused
+        self.sensor_callback_paused = False
+
         self.vel = 0
         #formulas in page 15
         self.thetal= self.angle_bl - self.angle_al
         self.thetar= self.angle_ar - self.angle_br
 
+    def getclassID(self, data):
+        #we first loop through each detection in the detections array. Then, for each detection, we loop through each result in the detection.results array and gets its id and confidence level
+        for i in range(0,len(data.detections)):
+          for j in range(0,len(data.detections[i].results)):
+            id = int(data.detections[i].results[j].id)
+            level = float(data.detections[i].results[j].score)
+        return id, level
+
+    #note that this function will only get called if it detects an object
+    def camera_callback(self, data):
+        classId,score=self.getclassID(data)
+        #find the id of a stop sign 
+        if classId == 72:
+            if self.classId_timer is None:
+                self.classId_timer = rospy.Time.now() # start the timer
+            elif (rospy.Time.now() - self.classId_timer).to_sec() >= self.duration_threshold:
+                rospy.loginfo('Object detected, sensor callback is paused')
+                self.sensor_callback_paused = True
+                start_time = rospy.Time.now()
+                while (rospy.Time.now() - start_time).to_sec() < 5.0:  # publish for 5 seconds
+                    speed_str =  "Velocity: Slow %s" % rospy.get_time()
+                    rospy.loginfo(speed_str)
+
+                    drive_msg = AckermannDriveStamped()
+                    drive_msg.header.stamp = rospy.Time.now()
+                    drive_msg.header.frame_id = "base_link"
+                    drive_msg.drive.steering_angle = 0.0
+                    drive_msg.drive.speed = 0.0
+                    self.drive_pub.publish(drive_msg)
+
+                    self.sensor_callback_paused = True
+                self.classId_timer = None # reset the timer
+                self.unpause_sensor_callback() 
+        #so if the three second timer has expired 
+        elif (self.classId_timer is not None) and (rospy.Time.now() - self.classId_timer).to_sec() > self.duration_threshold:
+            self.classId_timer = None # reset the timer when classId is not equal to 72
+            self.unpause_sensor_callback() 
+        #the object is not detected
+        else:
+            self.unpause_sensor_callback() 
+
+    
+    def unpause_sensor_callback(self):
+        # Unpause the sensor callback
+        self.sensor_callback_paused = False
+        
+        # Print a message indicating that the sensor callback is unpaused
+        rospy.loginfo('Sensor callback unpaused, waiting period is over')    
 
     def getRange(self, data, angle):
         
@@ -65,87 +122,95 @@ class WallFollow:
             data2=self.max_lidar_range
         return data2
 
-    def getclassID(self, data):
-        id = int(data.results[0].id)
-        return id
 
     def lidar_callback(self, data):      
+        if self.sensor_callback_paused:
+            # Print a message indicating that the sensor callback is paused
+            #rospy.loginfo('Sensor callback paused due to object detection')
+            pass
+        elif self.sensor_callback_paused == False:
+            dis_lsr_al=self.getRange(data, self.angle_al)
+            dis_lsr_bl=self.getRange(data, self.angle_bl)
 
-        dis_lsr_al=self.getRange(data, self.angle_al)
-        dis_lsr_bl=self.getRange(data, self.angle_bl)
+            dis_lsr_ar=self.getRange(data, self.angle_ar)
+            dis_lsr_br=self.getRange(data, self.angle_br)
 
-        dis_lsr_ar=self.getRange(data, self.angle_ar)
-        dis_lsr_br=self.getRange(data, self.angle_br)
+            betar=math.atan((dis_lsr_ar*math.cos(self.thetar)-dis_lsr_br)/(dis_lsr_ar*math.sin(self.thetar)))
+            betal=math.atan((dis_lsr_al*math.cos(self.thetal)-dis_lsr_bl)/(dis_lsr_al*math.sin(self.thetal)))
 
-        betar=math.atan((dis_lsr_ar*math.cos(self.thetar)-dis_lsr_br)/(dis_lsr_ar*math.sin(self.thetar)))
-        betal=math.atan((dis_lsr_al*math.cos(self.thetal)-dis_lsr_bl)/(dis_lsr_al*math.sin(self.thetal)))
-
-        alphal = -1*betal - self.angle_bl + math.pi*(3/2)
-        # 3pi/2 = 270 deg.
-        
-
-        alphar = betar - self.angle_br + math.pi/2
-
-        # distance to the left walls
-        dl=dis_lsr_bl*math.cos(betal)
-        # distance to the right walls
-        dr=dis_lsr_br*math.cos(betar)
-
-
-        
-        if self.vel >= 0.01 or self.vel <= -0.01:
-            
-            # Track left wall 
-            if self.TrackWall == 1:
-                d_tilde = self.DistanceLeft-dl
-                d_dot= -self.vel * math.sin(alphal)
-                #delta_d = math.atan(-(self.wheelbase)/((self.vel**2)*math.cos(alphal))*(-self.k_p*d_tilde-self.k_d*d_dot))
-                delta_d = math.atan(-(self.wheelbase*(self.k_p*d_tilde - self.k_d*d_dot))/((self.vel**2)*math.cos(alphal)))
-
-            # Trackl right wall 
-            elif self.TrackWall == 2:
-                d_tilde = self.DistanceRight-dr
-                d_dot= self.vel*math.sin(alphar)
-                #delta_d = math.atan((self.wheelbase)/((self.vel**2)*math.cos(alphar))*(-self.k_p*d_tilde-self.k_d*d_dot))
-                delta_d = math.atan((self.wheelbase*(self.k_p*d_tilde - self.k_d*d_dot))/((self.vel**2)*math.cos(alphar)))
-
-            # Track both walls
-            else :
-                d_tilde= dl -dr -self.CenterOffset
-                d_tilde_dot=-self.vel*math.sin(alphal)-self.vel*math.sin(alphar)
-                delta_d = math.atan((self.wheelbase*(self.k_p*d_tilde+self.k_d*d_tilde_dot))/((self.vel**2)*(math.cos(alphal)+math.cos(alphar))))
-        
-        else:
+            alphal = -1*betal - self.angle_bl + math.pi*(3/2)
+            # 3pi/2 = 270 deg.
             
 
-            delta_d = 0
+            alphar = betar - self.angle_br + math.pi/2
+
+            # distance to the left walls
+            dl=dis_lsr_bl*math.cos(betal)
+            # distance to the right walls
+            dr=dis_lsr_br*math.cos(betar)
+
+
             
-        # if the steering angle exceeds the threshold value.
-        if delta_d >=self.max_steering_angle:
-            delta_d=self.max_steering_angle
-        elif delta_d<=-self.max_steering_angle:
-            delta_d =-self.max_steering_angle
-        
-        #radians to degree conversion
-        angle_deg=abs(delta_d)*180/math.pi
-        #angle_threshold_low: 10, defined in params.yaml file
-        #angle_threshold_high: 20
-        # velocity_high: 1.5
-        # velocity_medium: 1.0
-        # velocity_low: 0.5
-        if angle_deg>=0 and angle_deg<=self.angle_threshold_low:
-            velocity=self.velocity_high
-        elif angle_deg > self.angle_threshold_low and angle_deg <= self.angle_threshold_high:
-            velocity=self.velocity_medium
-        else:
-            velocity=self.velocity_low
+            if self.vel >= 0.01 or self.vel <= -0.01:
+                
+                # Track left wall 
+                if self.TrackWall == 1:
+                    d_tilde = self.DistanceLeft-dl
+                    d_dot= -self.vel * math.sin(alphal)
+                    #delta_d = math.atan(-(self.wheelbase)/((self.vel**2)*math.cos(alphal))*(-self.k_p*d_tilde-self.k_d*d_dot))
+                    delta_d = math.atan(-(self.wheelbase*(self.k_p*d_tilde - self.k_d*d_dot))/((self.vel**2)*math.cos(alphal)))
 
-        #if the stering angle is between zero and threshold_low, the velocity will be high
-        #if between low and high, the v will be medium
-        #if exceeds the high angle, the v will be low
-        #to make sure the aev will not speed too fast when it's not driving horizontally.
+                # Trackl right wall 
+                elif self.TrackWall == 2:
+                    d_tilde = self.DistanceRight-dr
+                    d_dot= self.vel*math.sin(alphar)
+                    #delta_d = math.atan((self.wheelbase)/((self.vel**2)*math.cos(alphar))*(-self.k_p*d_tilde-self.k_d*d_dot))
+                    delta_d = math.atan((self.wheelbase*(self.k_p*d_tilde - self.k_d*d_dot))/((self.vel**2)*math.cos(alphar)))
 
-        self.driveInfo_callback(delta_d, velocity)
+                # Track both walls
+                else :
+                    d_tilde= dl -dr -self.CenterOffset
+                    d_tilde_dot=-self.vel*math.sin(alphal)-self.vel*math.sin(alphar)
+                    delta_d = math.atan((self.wheelbase*(self.k_p*d_tilde+self.k_d*d_tilde_dot))/((self.vel**2)*(math.cos(alphal)+math.cos(alphar))))
+            
+            else:
+                
+
+                delta_d = 0
+                
+            # if the steering angle exceeds the threshold value.
+            if delta_d >=self.max_steering_angle:
+                delta_d=self.max_steering_angle
+            elif delta_d<=-self.max_steering_angle:
+                delta_d =-self.max_steering_angle
+            
+            #radians to degree conversion
+            angle_deg=abs(delta_d)*180/math.pi
+            #angle_threshold_low: 10, defined in params.yaml file
+            #angle_threshold_high: 20
+            # velocity_high: 1.5
+            # velocity_medium: 1.0
+            # velocity_low: 0.5
+            if angle_deg>=0 and angle_deg<=self.angle_threshold_low:
+                velocity=self.velocity_high
+            elif angle_deg > self.angle_threshold_low and angle_deg <= self.angle_threshold_high:
+                velocity=self.velocity_medium
+            else:
+                velocity=self.velocity_low
+
+            #if the stering angle is between zero and threshold_low, the velocity will be high
+            #if between low and high, the v will be medium
+            #if exceeds the high angle, the v will be low
+            #to make sure the aev will not speed too fast when it's not driving horizontally.
+
+            # Publish to driver topic
+
+            drive_msg = AckermannDriveStamped()
+            drive_msg.header.stamp = rospy.Time.now()
+            drive_msg.header.frame_id = "base_link"
+            drive_msg.drive.steering_angle = delta_d
+            drive_msg.drive.speed = velocity
+            self.drive_pub.publish(drive_msg)
 
 
 
@@ -153,31 +218,13 @@ class WallFollow:
         # update current speed
         self.vel = odom_msg.twist.twist.linear.x
 
-    def camera_callback(self, data):
-        classId=self.getclassID(data)
-        #find the id of a stop sign or a person
-        if classId == 0:
-            #self.vel = 0
-            delta_d = 0
-            velocity = 0
-            print("stop sign detected")
-            self.driveInfo_callback(delta_d, velocity)
-
-    def driveInfo_callback(self,angle,speed):
-        # Publish to driver topic
-        drive_msg = AckermannDriveStamped()
-        drive_msg.header.stamp = rospy.Time.now()
-        drive_msg.header.frame_id = "base_link"
-        drive_msg.drive.steering_angle = angle
-        drive_msg.drive.speed = speed
-        self.drive_pub.publish(drive_msg)
 
 def main(args):
     rospy.init_node("WallFollow_node", anonymous=True)
     wf = WallFollow()
     rospy.sleep(0.1)
-    #keep the node running until it stops
     rospy.spin()
 
 if __name__=='__main__':
 	main(sys.argv)
+

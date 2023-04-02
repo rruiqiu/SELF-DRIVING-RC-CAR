@@ -5,11 +5,11 @@ from std_msgs.msg import String
 def talker():
     pub = rospy.Publisher('/sensor/sensor_data', String, queue_size=10)
     rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+    #rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
-        speed_str = "Velocity: Fast %s" % rospy.get_time()
+        speed_str = "Velocity: Fast %s"
         pub.publish(speed_str)
-        rate.sleep()
+        #rate.sleep()
 
 if __name__ == '__main__':
     try:
