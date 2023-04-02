@@ -31,8 +31,6 @@ class GapBarrier:
         self.max_lidar_range=rospy.get_param('~scan_range')
         self.wheelbase=rospy.get_param('~wheelbase')
         self.CenterOffset=rospy.get_param('~CenterOffset')
-        self.DistanceLeft=rospy.get_param('~DistanceLeft')
-        self.DistanceRight=rospy.get_param('~DistanceRight')
         self.TrackWall=rospy.get_param('~TrackWall')
         self.k_p=rospy.get_param('~k_p')
         self.k_d=rospy.get_param('~k_d')
@@ -117,11 +115,12 @@ class GapBarrier:
             if  j==1 and (proc_ranges[i,0]==0 or i==self.ls_len_mod-1):
                
                 j=0
-
+                #this if statemnet is used to idneitfy the longest sequence of cosective free space points
+                #When a zero value is encountered, the length of the current sequence is compared to the length of the longest sequence seen so far, and the longer of the two is stored. The resulting length represents the maximum gap in the "free space" that can be used to plan safe trajectories.
                 if  range_sum_new > range_sum: 
-                        end_indx2= ...
-                        str_indx2= ... 
-                        range_sum = ... 
+                        end_indx2= end_indx
+                        str_indx2= str_indx
+                        range_sum = range_sum_new 
 
         return str_indx2, end_indx2
 
@@ -130,12 +129,15 @@ class GapBarrier:
     # Returns index of best (furthest point) in ranges
     def find_best_point(self, start_i, end_i, proc_ranges):
 
-        ...
-        
+        numerator = 0
+        denom = 0
+        for i in range(start_i, end_i + 1):
+            #note that: proc_ranges[i,0] represents the range value (i.e., distance) of the i-th LIDAR return, while proc_ranges[i,1] represents the corresponding angle (heading) of that return 
+            numerator = numerator + (proc_ranges[i,0] * proc_ranges[i,1])
+            denom = denom + proc_ranges[i,0]
+        best_heading = numerator / denom
         return best_heading
 
-
- 
     def getWalls(self, left_obstacles, right_obstacles):
 
         P = ...
