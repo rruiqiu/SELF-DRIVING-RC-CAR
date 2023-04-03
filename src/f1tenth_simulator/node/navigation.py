@@ -52,7 +52,7 @@ class WallFollow:
         self.drive_pub =rospy.Publisher(drive_topic, AckermannDriveStamped, queue_size=1)
 
         self.classId_timer = None # initialize the timer to None
-        self.duration_threshold = 3 #detection interval of 3 seconds
+        self.duration_threshold = 1 #detection interval of 3 seconds
         self.duration_publish = 5 #interavl in which the messgae is published once it detects a stop sign
  
 
@@ -76,7 +76,7 @@ class WallFollow:
     def camera_callback(self, data):
         classId,score=self.getclassID(data)
         #find the id of a stop sign 
-        if classId == 72:
+        if classId == 1:
             if self.classId_timer is None:
                 self.classId_timer = rospy.Time.now() # start the timer
             elif (rospy.Time.now() - self.classId_timer).to_sec() >= self.duration_threshold:

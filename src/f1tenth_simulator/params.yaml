@@ -154,7 +154,7 @@ emergency_brake_active: true
 CenterOffset: 0.0
 DistanceLeft: 1.0
 DistanceRight: 2.0
-TrackWall: 1
+TrackWall: 2
 angle_bl: rad(270*pi/180)
 angle_al: rad(220*pi/180)
 angle_br: rad(90*pi/180)
