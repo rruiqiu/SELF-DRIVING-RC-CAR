@@ -46,7 +46,6 @@ class CollisionAssistance:
 
         # compute beam angle increment 
         self.ls_ang_inc=2*math.pi/self.scan_beams
-
         # start index for 180 deg. FOV
         self.ls_str=int(round(self.scan_beams/4))
         # number of laser beams in the front 180 deg. FOV
@@ -88,8 +87,7 @@ class CollisionAssistance:
     
 
     # Find unsafe obstacles and return number of unsafe obstacles
-    #  and the closest point of each unsafe obstacle to the vehicle   
-
+    # and the closest point index of each unsafe obstacle to the vehicle   
     #get the input from preprocess_lidar
     def obst_idnt(self,ls_ranges):
  
@@ -119,9 +117,8 @@ class CollisionAssistance:
             #The function np.argmin() returns the index of the minimum value in an array. 
             arg_ls_obs[i] = np.argmin(ls_ranges[self.obs_indx[i, 0]:self.obs_indx[i, 1],0])
             #imagine, within the range of the start and end index, if that one is smaller
-            #it is used to find the fucking index, so, we need to add the orgiinal index
+            #it is used to find the index, so, we need to add the orgiinal index
             arg_ls_obs[i]=self.obs_indx[i,0]+ arg_ls_obs[i]
-            #why add? 
         # The resulting index is then adjusted to be the index within the full ls_ranges array, rather than the index within the slice of the ls_ranges array. 
         #the arg_ls_obs will store the index of the nearest obstacle index within the ls_ranges
         return nm_obs, arg_ls_obs
