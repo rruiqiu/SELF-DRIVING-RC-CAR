@@ -31,7 +31,7 @@ class GapBarrier:
         self.max_lidar_range=rospy.get_param('~scan_range')
         self.wheelbase=rospy.get_param('~wheelbase')
         self.CenterOffset=rospy.get_param('~CenterOffset')
-        self.TrackWall=rospy.get_param('~TrackWall')
+        # self.TrackWall=rospy.get_param('~TrackWall')
         self.k_p=rospy.get_param('~k_p')
         self.k_d=rospy.get_param('~k_d')
         self.angle_bl=rospy.get_param('~angle_bl')
@@ -138,7 +138,8 @@ class GapBarrier:
             #  while proc_ranges[i,1] represents the corresponding angle (heading) of that return 
             numerator = numerator + (proc_ranges[i,0] * proc_ranges[i,1])
             denom = denom + proc_ranges[i,0]
-        best_heading = numerator / denom
+        if denom !=0:
+            best_heading = numerator / denom
         return best_heading
 
     def getWalls(self, left_obstacles, right_obstacles):
