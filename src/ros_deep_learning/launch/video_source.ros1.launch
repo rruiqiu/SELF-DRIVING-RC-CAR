@@ -1,8 +1,8 @@
 <launch>
-	<arg name="input" default="csi://0"/>
+	<arg name="input" default="v4l2:///dev/video2"/>
 	<arg name="input_width" default="0"/>
 	<arg name="input_height" default="0"/>
-	<arg name="input_codec" default="unknown"/>
+	<arg name="input_codec" default="h264"/>
 	<arg name="input_loop" default="0"/>
 
 	<node pkg="ros_deep_learning" type="video_source" name="video_source" output="screen">

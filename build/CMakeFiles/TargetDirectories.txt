@@ -108,6 +108,13 @@
 /home/rsg/catkin_ws/build/ros-imu-bno055/CMakeFiles/sensor_msgs_generate_messages_eus.dir
 /home/rsg/catkin_ws/build/ros-imu-bno055/CMakeFiles/rebuild_cache.dir
 /home/rsg/catkin_ws/build/ros-imu-bno055/CMakeFiles/sensor_msgs_generate_messages_lisp.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/install/strip.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/edit_cache.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/list_install_components.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/test.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/install/local.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/rebuild_cache.dir
+/home/rsg/catkin_ws/build/object_detection/CMakeFiles/install.dir
 /home/rsg/catkin_ws/build/test/CMakeFiles/install/strip.dir
 /home/rsg/catkin_ws/build/test/CMakeFiles/edit_cache.dir
 /home/rsg/catkin_ws/build/test/CMakeFiles/list_install_components.dir

@@ -1,2 +1,2 @@
-f1tenth_simulator:imu_tf_pkg:joystick_drivers/joy:joystick_drivers/joystick_drivers:joystick_drivers/spacenav_node:ros-imu-bno055:ros_deep_learning:test:vesc/vesc:vesc/vesc_ackermann:vesc/vesc_driver:vesc/vesc_msgs
+f1tenth_simulator:imu_tf_pkg:joystick_drivers/joy:joystick_drivers/joystick_drivers:joystick_drivers/spacenav_node:object_detection:ros-imu-bno055:ros_deep_learning:test:vesc/vesc:vesc/vesc_ackermann:vesc/vesc_driver:vesc/vesc_msgs
 -DCATKIN_DEVEL_PREFIX=/home/rsg/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/rsg/catkin_ws/install -G Unix Makefiles

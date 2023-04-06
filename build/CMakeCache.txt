@@ -594,6 +594,12 @@ nav_msgs_DIR:PATH=/opt/ros/melodic/share/nav_msgs/cmake
 //The directory containing a CMake configuration file for nodelet.
 nodelet_DIR:PATH=/opt/ros/melodic/share/nodelet/cmake
 
+//Value Computed by CMake
+object_detection_BINARY_DIR:STATIC=/home/rsg/catkin_ws/build/object_detection
+
+//Value Computed by CMake
+object_detection_SOURCE_DIR:STATIC=/home/rsg/catkin_ws/src/object_detection
+
 //The directory containing a CMake configuration file for pluginlib.
 pluginlib_DIR:PATH=/opt/ros/melodic/share/pluginlib/cmake
 
@@ -833,7 +839,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=16
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=17
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

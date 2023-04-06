@@ -1984,6 +1984,24 @@ clean: ros-imu-bno055/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory object_detection
+
+# Convenience name for "all" pass in the directory.
+object_detection/all:
+
+.PHONY : object_detection/all
+
+# Convenience name for "clean" pass in the directory.
+object_detection/clean:
+
+.PHONY : object_detection/clean
+
+# Convenience name for "preinstall" pass in the directory.
+object_detection/preinstall:
+
+.PHONY : object_detection/preinstall
+
+#=============================================================================
 # Directory level rules for directory test
 
 # Convenience name for "all" pass in the directory.
