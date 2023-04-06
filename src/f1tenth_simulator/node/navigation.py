@@ -74,6 +74,7 @@ class WallFollow:
         dis_lsr_ar=self.getRange(data, self.angle_ar)
         dis_lsr_br=self.getRange(data, self.angle_br)
 
+<<<<<<< HEAD
         betar=atan((dis_lsr_ar*math.cos(self.thetar)-dis_lsr_br)/(dis_lsr_ar*math.sin(self.thetar)))
         betal=atan((dis_lsr_al*math.cos(self.thetal)-dis_lsr_bl)/(dis_lsr_al*math.sin(self.thetal)))
 
@@ -82,6 +83,20 @@ class WallFollow:
 
  
         dl=dis_lsr_bl*math.cos(betal)
+=======
+        betar=math.atan((dis_lsr_ar*math.cos(self.thetar)-dis_lsr_br)/(dis_lsr_ar*math.sin(self.thetar)))
+        betal=math.atan((dis_lsr_al*math.cos(self.thetal)-dis_lsr_bl)/(dis_lsr_al*math.sin(self.thetal)))
+
+        alphal = -1*betal - self.angle_bl + math.pi*(3/2)
+        # 3pi/2 = 270 deg.
+        
+
+        alphar = betar - self.angle_br + math.pi/2
+
+        # distance to the left walls
+        dl=dis_lsr_bl*math.cos(betal)
+        # distance to the right walls
+>>>>>>> 73356da81e29ec173ce20741012282ae5f998d46
         dr=dis_lsr_br*math.cos(betar)
 
 
@@ -91,13 +106,20 @@ class WallFollow:
             # Track left wall 
             if self.TrackWall == 1:
                 d_tilde = self.DistanceLeft-dl
+<<<<<<< HEAD
                 d_dot= self.vel * math.sin(alphar)
                 delta_d = -1*(pow(self.vel,2)/self.wheelbase) * math.cos(alphar) * math.tan()
+=======
+                d_dot= -self.vel * math.sin(alphal)
+                #delta_d = math.atan(-(self.wheelbase)/((self.vel**2)*math.cos(alphal))*(-self.k_p*d_tilde-self.k_d*d_dot))
+                delta_d = math.atan(-(self.wheelbase*(self.k_p*d_tilde - self.k_d*d_dot))/((self.vel**2)*math.cos(alphal)))
+>>>>>>> 73356da81e29ec173ce20741012282ae5f998d46
 
             # Trackl right wall 
             elif self.TrackWall == 2:
                 d_tilde = self.DistanceRight-dr
                 d_dot= self.vel*math.sin(alphar)
+<<<<<<< HEAD
                 delta_d = (pow(self.vel,2)/self.wheelbase) * math.cos(alphar) * math.tan()
 
             # Track both walls
@@ -110,13 +132,40 @@ class WallFollow:
             delta_d = 0
             
 
+=======
+                #delta_d = math.atan((self.wheelbase)/((self.vel**2)*math.cos(alphar))*(-self.k_p*d_tilde-self.k_d*d_dot))
+                delta_d = math.atan((self.wheelbase*(self.k_p*d_tilde - self.k_d*d_dot))/((self.vel**2)*math.cos(alphar)))
+
+            # Track both walls
+            else :
+                d_tilde= dl -dr -self.CenterOffset
+                d_tilde_dot=-self.vel*math.sin(alphal)-self.vel*math.sin(alphar)
+                delta_d = math.atan((self.wheelbase*(self.k_p*d_tilde+self.k_d*d_tilde_dot))/((self.vel**2)*(math.cos(alphal)+math.cos(alphar))))
+        
+        else:
+            
+
+            delta_d = 0
+            
+        # if the steering angle exceeds the threshold value.
+>>>>>>> 73356da81e29ec173ce20741012282ae5f998d46
         if delta_d >=self.max_steering_angle:
             delta_d=self.max_steering_angle
         elif delta_d<=-self.max_steering_angle:
             delta_d =-self.max_steering_angle
         
+<<<<<<< HEAD
         angle_deg=abs(delta_d)*180/math.pi
         
+=======
+        #radians to degree conversion
+        angle_deg=abs(delta_d)*180/math.pi
+        #angle_threshold_low: 10, defined in params.yaml file
+        #angle_threshold_high: 20
+        # velocity_high: 1.5
+        # velocity_medium: 1.0
+        # velocity_low: 0.5
+>>>>>>> 73356da81e29ec173ce20741012282ae5f998d46
         if angle_deg>=0 and angle_deg<=self.angle_threshold_low:
             velocity=self.velocity_high
         elif angle_deg > self.angle_threshold_low and angle_deg <= self.angle_threshold_high:
@@ -124,6 +173,14 @@ class WallFollow:
         else:
             velocity=self.velocity_low
 
+<<<<<<< HEAD
+=======
+        #if the stering angle is between zero and threshold_low, the velocity will be high
+        #if between low and high, the v will be medium
+        #if exceeds the high angle, the v will be low
+        #to make sure the aev will not speed too fast when it's not driving horizontally.
+
+>>>>>>> 73356da81e29ec173ce20741012282ae5f998d46
         # Publish to driver topic
         drive_msg = AckermannDriveStamped()
         drive_msg.header.stamp = rospy.Time.now()
@@ -146,4 +203,8 @@ def main(args):
     rospy.spin()
 
 if __name__=='__main__':
+<<<<<<< HEAD
 	main(sys.argv)
+=======
+	main(sys.argv)
+>>>>>>> 73356da81e29ec173ce20741012282ae5f998d46
