@@ -116,7 +116,9 @@ class GapBarrier:
                
                 j=0
                 #this if statemnet is used to idneitfy the longest sequence of cosective free space points
-                #When a zero value is encountered, the length of the current sequence is compared to the length of the longest sequence seen so far, and the longer of the two is stored. The resulting length represents the maximum gap in the "free space" that can be used to plan safe trajectories.
+                #When a zero value is encountered, the length of the current sequence is compared to the length 
+                # of the longest sequence seen so far, and the longer of the two is stored. The resulting length 
+                # represents the maximum gap in the "free space" that can be used to plan safe trajectories.
                 if  range_sum_new > range_sum: 
                         end_indx2= end_indx
                         str_indx2= str_indx
@@ -132,7 +134,8 @@ class GapBarrier:
         numerator = 0
         denom = 0
         for i in range(start_i, end_i + 1):
-            #note that: proc_ranges[i,0] represents the range value (i.e., distance) of the i-th LIDAR return, while proc_ranges[i,1] represents the corresponding angle (heading) of that return 
+            #note that: proc_ranges[i,0] represents the range value (i.e., distance) of the i-th LIDAR return,
+            #  while proc_ranges[i,1] represents the corresponding angle (heading) of that return 
             numerator = numerator + (proc_ranges[i,0] * proc_ranges[i,1])
             denom = denom + proc_ranges[i,0]
         best_heading = numerator / denom
@@ -140,16 +143,18 @@ class GapBarrier:
 
     def getWalls(self, left_obstacles, right_obstacles):
 
-        P = ...
+        P = np.array([[1,0], [0,1]])
 
-        bl = ...
-        br = ...
+        bl = np.full((self.n_pts_l), 1.0, dtype=np.float64)
+        br = np.full((self.n_pts_r), 1.0, dtype=np.float64)
 
-        a = ...
+        a = np.array([0, 0])
         
-        Cl= ...
-        Cr= ...
+        #constarints
+        Cl= -(left_obstacles.T)
+        Cr= -(right_obstacles.T)
         
+        #astype = converts data into float
         wl = solve_qp(P.astype(np.float), a.astype(np.float), Cl.astype(np.float),  bl.astype(np.float), 0)[0]
         wr = solve_qp(P.astype(np.float), a.astype(np.float), Cr.astype(np.float),  br.astype(np.float), 0)[0]
         
@@ -217,11 +222,11 @@ class GapBarrier:
 
         wl, wr = self.getWalls(obstacle_points_l, obstacle_points_r) 
 
-        dl = ...
-        dr = ...
+        dl = 1/math.sqrt(np.dot(wl.T,wl))
+        dr = 1/math.sqrt(np.dot(wr.T,wr))
 
-        wl_h = ... 
-        wr_h = ... 
+        wl_h = wl*dl
+        wr_h = wr*dr
 
         self.marker.header.frame_id = "base_link"
         self.marker.header.stamp = rospy.Time.now() 
