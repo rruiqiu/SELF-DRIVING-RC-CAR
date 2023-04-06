@@ -1,7 +1,7 @@
 <launch>
 	<arg name="output" default="display://0"/>
-	<arg name="output_codec" default="unknown"/>
-	<arg name="output_bitrate" default="0"/>
+	<arg name="output_codec" default="h264"/>
+	<arg name="output_bitrate" default="4000000"/>
 	<arg name="topic"/>
 
 	<node pkg="ros_deep_learning" type="video_output" name="video_output" output="screen">

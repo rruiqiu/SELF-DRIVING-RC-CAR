@@ -4,7 +4,7 @@
 	<arg name="input" default="v4l2:///dev/video2"/>
 	<arg name="input_width" default="0"/>
 	<arg name="input_height" default="0"/>
-	<arg name="input_codec" default="unknown"/>
+	<arg name="input_codec" default="h264"/>
 	<arg name="input_loop" default="0"/>
 
 	<include file="$(find ros_deep_learning)/launch/video_source.ros1.launch">

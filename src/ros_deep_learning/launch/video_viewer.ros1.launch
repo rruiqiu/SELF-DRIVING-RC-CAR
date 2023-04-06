@@ -1,10 +1,10 @@
 <launch>
 
 	<!-- VIDEO SOURCE -->
-	<arg name="input" default="csi://0"/>
+	<arg name="input" default="v4l2:///dev/video2"/>
 	<arg name="input_width" default="0"/>
 	<arg name="input_height" default="0"/>
-	<arg name="input_codec" default="unknown"/>
+	<arg name="input_codec" default="h264"/>
 	<arg name="input_loop" default="0"/>
 
 	<include file="$(find ros_deep_learning)/launch/video_source.ros1.launch">
@@ -17,8 +17,8 @@
 
 	<!-- VIDEO OUTPUT -->
 	<arg name="output" default="display://0"/>
-	<arg name="output_codec" default="unknown"/>
-	<arg name="output_bitrate" default="0"/>
+	<arg name="output_codec" default="h264"/>
+	<arg name="output_bitrate" default="4000000"/>
 
 	<include file="$(find ros_deep_learning)/launch/video_output.ros1.launch">
 		<arg name="topic" value="/video_source/raw"/>
