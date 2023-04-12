@@ -138,6 +138,7 @@ class GapBarrier:
             #  while proc_ranges[i,1] represents the corresponding angle (heading) of that return 
             numerator = numerator + (proc_ranges[i,0] * proc_ranges[i,1])
             denom = denom + proc_ranges[i,0]
+	#ensures that their is no divison by zero error when calculting the best heading
         if denom !=0:
             best_heading = numerator / denom
         return best_heading
